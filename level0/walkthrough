@@ -1,0 +1,7 @@
+using a disassembler (hopper, radar2, ghidra or gdb) we can find that the argument must be equals to 0x1a7 = 423
+giving access privilige from binary, we can then go the root of level1 home having the .pass with the flag inside
+
+./level0 423
+cd ../level1
+cat .pass
+

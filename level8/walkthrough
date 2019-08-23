@@ -1,0 +1,8 @@
+the binary will check on stdin and compare it to commands like, auth, login, services, reset
+"auth "
+will malloc in the memory, and will prevent you to write  over 31
+cause if the character at 32 is not "" it will log you when writing login
+service in it side will  malloc in the memory and will write whatever you write
+so if you manage to overwrite the 32 character after the "auth " command part
+you'll get acces to the privilege access
+

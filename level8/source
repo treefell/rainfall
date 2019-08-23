@@ -1,0 +1,41 @@
+int main() 
+{ 
+	char	*str;
+	char	auth[8];
+	char	*service;
+
+	do {
+		printf("%p, %p \n", *auth, *service);
+		var_A0 = *stdin@@GLIBC_2.0;
+		var_A8 = &var_88;
+		if (fgets(var_A8, 0x80, stdin) == 0x0) {
+			break;
+		}
+		if (strcmp(str, "auth") == 0)
+			*auth = malloc(0x4);
+			**auth = 0x0;
+			ecx = 0xffffffff;
+			asm { repne scasb al, byte [edi] };
+			if (!ecx <= 0x1f) {
+				strcpy(*auth, &var_88 + 0x5);
+			}
+		}
+		if (strcmp(str, "reset") == 0) {
+			free(*auth);
+		}
+		if (strcmp(str, "service") == 0) {
+			*service = strdup(&var_88 + 0x7);
+		}
+		/* what's is that suppose to be ? */
+		if (strcmp(str, "login") == 0 {
+			continue;
+		}
+		if (*(*auth + 0x20) != 0x0) {
+			system("/bin/sh");
+		}
+		else {
+			fwrite("Password:\n", 1, 10, stdout);
+		}
+	} while (true);
+	return (0);
+}

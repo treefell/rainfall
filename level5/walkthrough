@@ -1,0 +1,24 @@
+Format String Exploit
+
+Here main makes a call to n function, which fgets 512char from stdin and prints
+it using printf before exiting.
+
+With a decompiler we can see that there is another function called "o", that makes
+a syscall to /bin/sh
+
+If we can jump to o function it's win! To do that we just need to modify the address
+of the GOT of exit, so that when n function trys to call exit it will call o instead
+if we replace the exit address by o's address.
+
+Using objdump -d level5 wee see that exit@plt perform a jmp to *0x08049838, so
+0x08049838 contains the current address of exit that we'll replace by 0x080484a4
+which is the address of o function.
+
+08049838 is actually the GOT exit
+rewriting the adresse to be 080484a4 using format string exploit
+Address we input appear at the 4th argument and %hn to only write the bit we need
+allowing us to get the bin/sh to run by launching o fuction instead of exit
+
+(python -c 'print "\x38\x98\x04\x08" + "%33952x" + "%4$hn"'; cat -) |./level5
+
+(python -c 'print "\x38\x98\x04\x08" + "\x40\x98\x04\x08" + "%2044x" + "%5$hn" + "%31904x" + "%4$hn"'; cat -) | ./level5

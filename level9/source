@@ -1,0 +1,39 @@
+class N{
+public:
+	char	*annotation;
+	int		value;
+
+	construct(N *this,int val)
+
+{
+		*(void *)this = 0x8048848;
+		/*this +104 can be replace by this.value*/
+		*(int *)(this + 104) = val;
+		return;
+}
+	setAnnotation(N *this, char *str)
+	{
+		size_t n;
+
+		n = strlen(str);
+		/*this + 4 can be replace by this.annotation*/
+		memcpy(this + 4, str, n); 
+	}
+
+
+void main (int argc, char  **argv)
+
+N *myobj;
+code **this;
+
+if (argc < 2) {
+	_exit(1);
+}
+myobj = (N *)operator.new(108);
+N::constructor(myobj, 5);
+this = (code **)operator.new(108);
+N::constructor((N *)this, 6);
+N::setAnnotation(myobj,*(char **)(argv + 4));
+(**(code **)*this)(this, myobj);
+return;
+}

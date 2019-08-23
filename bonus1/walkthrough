@@ -1,0 +1,34 @@
+Multiplying Big Negative Number And Buffer Overflow
+
+Here the bonus1 program takes 2 arguments, the first must be a number, 
+it will be converted into an int with atoi. The second argument is a string
+that will be memcpyed into a buffer with 40 char.
+
+The problem here is that there is a check if the number < 10
+then a memcpy that copies number*4 size into the buffer[40]
+
+After if the number == 0x574f4c46 "/bin/sh" is executed
+
+So we need a number that will be < 10 AND positive when multiplied by 4
+in order to do the overflow
+
+When very big negative numbers are multiplied they become positive in memory!
+In ressources there is a source code of a little program giving the example.
+
+Test it with numbers like -2147483647 -2147483630 -2147483592 etc...
+
+The result must be higher or equal to 60 so we'll be able to overflow the buffer.
+
+We find under gdb that the offset is at 56 char
+
+(gdb) unset env LINES
+(gdb) unset env COLUMNS
+(gdb) r $(python -c 'print "-2147483530" + " " + "A"*56 + "BBBB"')
+
+Trys to jump into "42424242"
+
+(gdb) disass main    (we see the start of /bin/sh execution is at address 0x08048482)
+
+So if we jump at that address, execl("/bin/sh", "sh", 0) will be executed !
+
+./bonus1 -2147483631 `python -c 'print "\x90"*56 + "\x08\x04\x84\x82"[::-1]'`

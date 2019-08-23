@@ -1,0 +1,9 @@
+(python -c 'print "\x10\x98\x04\x08" + "\x12\x98\x04\x08" +"%21820c"+"%12$n"+"%43966c"+"%13$n..."'; cat -) | ./level4
+
+since the *m address is in another function we need to overflow of the stack to the other function to write
+in the *m variable, the value to write is pretty high to do it with %n so we cut the number into 2
+to make it easier and effectively write 2 time in the memory
+it's possible to do it in one go but it's way longer
+since %n can only go up,we write 5544 first and then 1 0102 allowing us
+to do it in only 15642 padding since we have the address stealing 4 of it
+we take the 12 et 13 argument cause there's 0x48 of difference to the *m variable

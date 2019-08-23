@@ -1,0 +1,35 @@
+void m(void *ignored_0,int ignored_2,char *ignored_3,int ignored_4,int ignored_5)
+
+{
+	time_t time_now;
+
+	time_now = time(NULL);
+	printf("%s - %d\n",c,time_now);
+	return;
+}
+
+
+int main (int argc, char **argv)
+
+{
+	astruct	*struct_a;
+	char	*a_str;
+	astruct	*struct_b;
+	char	*b_struct;
+	FILE	*__stream;
+
+	struct_a = (astruct *)malloc(8);
+	struct_a->id = 1;
+	a_str = (char *)malloc(8);
+	struct_a->str = a_str;
+	struct_b = (astruct *)malloc(8);
+	struct_b->id = 2;
+	b_str = (char *)malloc(8);
+	struct_b->str = b_str;
+	strcpy(struct_a->str,argv[1]);
+	strcpy(struct_b->str,argv[2]);
+	__stream = fopen("/home/user/level8/.pass","r");
+	fgets(c,0x44,__stream);
+	puts("~~");
+	return 0;
+}

@@ -1,0 +1,25 @@
+#include <stdio.h>
+#include <string.h>
+
+void	p(void)
+{
+	char		*res;
+	char	buff[76];
+
+	fflush(stdout);
+	res = gets(buff);
+	if ((res & 0xb0000000) == 0xb0000000)//checks the address at index 80 starts with a 0xb
+	{
+		printf("(%p)\n", res);
+		exit(1);
+	}
+	puts(buff)
+	strdup(buff);
+	return ;
+}
+
+int		main(void)
+{
+	p();
+	return (0);
+}

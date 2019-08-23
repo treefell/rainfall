@@ -1,0 +1,23 @@
+
+int	main(int argc, char **argv)
+{
+	pass_fd = fopen("/home/user/end/.pass","r")
+
+	if (pass_fd == NULL || argc != 2)
+		ret = 0xffffffff;
+
+	else
+	{
+		fread(buff, 1, 0x42, pass_fd)
+		i = atoi(argv[1])
+		*(buff + i) = 0;
+		fread(buff_2, 1, 0x41, pass_fd)
+		fclose(pass_fd)
+		if (strcmp(buff, argv[1]) == 0)
+			execl("/bin/sh","sh",0);
+		else
+			puts("\n")
+		ret = 0
+	}
+	return(ret)
+}

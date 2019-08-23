@@ -1,0 +1,25 @@
+void	m (void)
+{
+	puts("Nope");
+	return;
+}
+
+void	n(void)
+{
+	system("/bin/cat /home/user/level7/.pass");
+	return;
+}
+
+int		main(int argc, char **argv)
+{
+	char *dest;
+	ptrfuction **code;
+
+	dest = (char *)malloc (0x40);
+	code = (ptrfunction **)malloc (4);
+	str = m;
+	strcpy(dest, argv[1]);
+	(**code)();
+	return(0);
+}
+

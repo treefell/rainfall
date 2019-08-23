@@ -1,0 +1,39 @@
+The program will do an fopen("/home/user/end/.pass","r"), so we assume that's
+the location of our flag.
+It will check if there is one argument and if fopen didn't return NULL
+otherwise program will return(0xffffffff)
+Then it will perform 2 fread into 2 buffers and close the fd.
+
+After that it does an strcmp(buffer, argv[1]), and if the content of that buffer
+equals to argv[1] a shell is executed !
+
+Under gdb we just have to find the address of that buffer and check it's content
+for that we need to skip fopens and freads and fclose.
+
+
+(gdb) b *0x08048513
+(gdb) b *0x08048533
+(gdb) b *0x0804856f
+(gdb) b *0x080485b3
+(gdb) b *0x080485c2
+(gdb) b *0x080485da
+(gdb) r AAAA
+
+(gdb) jump *0x08048518
+(gdb) jump *0x0804854d     //Here we skip the cmps
+(gdb) jump *0x08048574
+(gdb) jump *0x080485b8
+(gdb) jump *0x080485c7
+(gdb) x/32x $esp			//Here Stack contains args for strcmp function
+							//First addr is buffer 2nd is argv[1]
+(gdb) x/32x <first addr>
+(gdb) x/32x <second addr>
+
+We see that buffer is empty, so if we send and empty string as argv[1] shell
+gets executed
+
+./bonus3 "`python -c 'print "\x00\x00\x00\x00"'`"
+./bonus3 ""
+whoami
+cd ../end
+cat .pass

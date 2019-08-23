@@ -1,0 +1,19 @@
+Another Format String Exploit
+
+Just like before we'll use printf to modify memory.
+As we can see in "n" function there is a call to system("/bin/cat /home/user/level5/.pass")
+if m == 0x1025544
+
+Under decompiler or using objdump -t level4 we can find that m address is 0x08049810
+
+The number 0x1025544 is too big to be written at once, and we can only write increasing numbers
+in memory.
+
+So we'll write 3 times, first time 0x44 (68 in base 10) at address 0x08049810,
+with 17 more we get a total of 85 (0x55) that will be written at address 0x08049811,
+finaly with 173 more we get a total of 258 (0x102) to be written in 0x08049812.
+
+We'll need to put those addresses in our string and take them in count, each address
+count as 4, that's why we have "%56x" in payload 4+4+4+56 = 68.
+
+(python -c 'print "\x10\x98\x04\x08" + "\x11\x98\x04\x08" + "\x12\x98\x04\x08" + "%56x" + "%12$n" + "%17x" + "%13$n" + "%173x" + "%14$n"') | ./level4

